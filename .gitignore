@@ -1,0 +1,25 @@
+# ---- Executáveis e Binários ----
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*_windows.syso
+
+# ---- Pastas de Ferramentas e Cache ----
+.go/
+vendor/
+
+# ---- Editores de Código (VS Code / IDEs) ----
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# ---- Sistema Operacional ----
+Thumbs.db
+Desktop.ini
+.DS_Store
