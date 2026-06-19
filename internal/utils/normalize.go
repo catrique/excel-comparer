@@ -12,12 +12,14 @@ import (
 )
 
 var reEspacosMultiplos = regexp.MustCompile(`\s+`)
-var reDataISO = regexp.MustCompile(`^(\d{4})[-/](\d{2})[-/](\d{2})`)
-var reDataBrCurta = regexp.MustCompile(`^(\d{2})/(\d{2})/(\d{2})$`)
+var reDataISO = regexp.MustCompile(`^(\d{4})[-/](\d{1,2})[-/](\d{1,2})`)
+var reDataBrCurta = regexp.MustCompile(`^(\d{1,2})/(\d{1,2})/(\d{2})$`)
 
 var reElesParecemDocumento = regexp.MustCompile(`^\d{2,3}[\.\-/\s]\d{3}`)
+var reElePareceData = regexp.MustCompile(`\d{1,4}[-/]\d{1,2}[-/]\d{2,4}`)
 
-var reElePareceData = regexp.MustCompile(`\d{2,4}[-/]\d{2}[-/]\d{2,4}`)
+var reDecimalPontoZero = regexp.MustCompile(`\.0+$`)
+var reDecimalVirgulaZero = regexp.MustCompile(`,0+$`)
 
 func NormalizeValue(val string, rules model.NormalizationRules) string {
 	val = strings.NewReplacer("\t", " ", "\n", " ", "\r", " ").Replace(val)
@@ -32,6 +34,19 @@ func NormalizeValue(val string, rules model.NormalizationRules) string {
 		val = RemoverAcentos(val)
 	}
 
+	if val != "" {
+		val = reDecimalPontoZero.ReplaceAllString(val, "")
+		val = reDecimalVirgulaZero.ReplaceAllString(val, "")
+
+		if strings.Contains(val, ",") && strings.Contains(val, ".") {
+			if strings.Index(val, ".") < strings.Index(val, ",") {
+				val = strings.ReplaceAll(val, ".", "")
+				val = strings.ReplaceAll(val, ",", ".")
+			}
+		} else if strings.Contains(val, ",") {
+			val = strings.ReplaceAll(val, ",", ".")
+		}
+	}
 	if rules.RemoverZerosEsquerda {
 		val = strings.TrimLeft(val, "0")
 		if val == "" {
@@ -79,6 +94,24 @@ func TratarData(val string) string {
 		}
 	}
 
+	if strings.Contains(valLimpa, "/") {
+		partes := strings.Split(valLimpa, "/")
+		if len(partes) == 3 {
+			dia := partes[0]
+			mes := partes[1]
+			ano := partes[2]
+
+			if len(dia) == 1 {
+				dia = "0" + dia
+			}
+			if len(mes) == 1 {
+				mes = "0" + mes
+			}
+
+			valLimpa = dia + "/" + mes + "/" + ano
+		}
+	}
+
 	return valLimpa
 }
 
@@ -92,7 +125,7 @@ func CorrigirEncoding(s string) string {
 	m := map[string]string{
 		"Ã§Ã£": "çã", "Ã£": "ã", "Ã©": "é", "Ã³": "ó", "Ã­": "í",
 		"Ãº": "ú", "Ã¢": "â", "Ãª": "ê", "Ã´": "ô", "Ã‡": "Ç",
-		"Ã": "Á", "Ã‰": "É", "Ã“": "Ó", "Âº": "º", "Âª": "ª",
+		"Ã ": "Á", "Ã‰": "É", "Ã“": "Ó", "Âº": "º", "Âª": "ª",
 		"Ã§": "ç",
 	}
 	for errado, correto := range m {

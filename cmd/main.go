@@ -10,7 +10,7 @@ import (
 
 func main() {
 	meuApp := app.New()
-	janela := meuApp.NewWindow("Mestre das Planilhas - Comparador de Planilhas")
+	janela := meuApp.NewWindow("Comparador de Planilhas")
 	janela.Resize(fyne.NewSize(900, 650))
 
 	if icone, err := fyne.LoadResourceFromPath("Icon.png"); err == nil {
