@@ -70,6 +70,8 @@ func NormalizeValue(val string, rules model.NormalizationRules) string {
 func TratarData(val string) string {
 	valLimpa := strings.TrimSpace(val)
 
+	valLimpa = regexp.MustCompile(`[^0-9/-]+`).ReplaceAllString(valLimpa, "")
+
 	if len(valLimpa) > 10 && (strings.Contains(valLimpa, "/") || strings.Contains(valLimpa, "-")) {
 		partes := strings.Fields(valLimpa)
 		if len(partes) > 0 {
